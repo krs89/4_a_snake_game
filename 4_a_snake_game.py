@@ -6,6 +6,13 @@ import time
 # initializing the screen
 curses.initscr()
 
+if curses.has_colors():
+    curses.start_color()
+curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
+curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)
+curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+
+
 screen = curses.newwin(20, 60, 0, 0)
 
 curses.noecho()                 # Disable default printing of inputs
@@ -17,13 +24,11 @@ screen.nodelay(1)               # if 1 - getch is in no-delay mode -- returns -1
 
 key = KEY_RIGHT                 # starting direction of the snake
 score = 0
-
 #snake = [[4,10], [4,9], [4,8]]
-food = [10,20]                      # First food co-ordinates
-screen.addch(food[0], food[1], '✿')    # Print the food
+food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
+screen.addch(food[0], food[1], '✿', curses.color_pair(3))    # Print the food
 
 screen.border(0)                # let border be the default characters
-screen.addstr(0, 2, " SCORE: " + str(score) + " ")
 screen.addstr(0, 27, " SNAKE ")
 screen.timeout(150)             # speed of snake (in fact it's the screen)
 
@@ -31,19 +36,26 @@ screen.timeout(150)             # speed of snake (in fact it's the screen)
 # if event in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, 27]:
 #     key = event
 
+
 def game():
-    head = [1, 1]
+    global score, food
+
+    q = -1
+    head = [9, 25]
     body = [head[:]]*3
     direction = 0 #0: right, 1: down, 2: left, 3: up
     gameover = False
     deadcell = body[-1][:]
 
-    while not gameover:
 
+    while not gameover and q < 0:
+        #screen.bkgd(" ", curses.color_pair(2))
+
+        q = screen.getch()                      # press q to exit
 
         if deadcell not in body:
             screen.addch(deadcell[0], deadcell[1], " ")
-        screen.addch(head[0], head[1], "#")
+        screen.addstr(head[0], head[1], " ", curses.color_pair(1))
 
 
         action = screen.getch()
@@ -72,12 +84,25 @@ def game():
         body[0] = head[:]
 
 
-        if screen.inch(head[0], head[1]) != ord(" "):           #if snake reaches borders AND/or runs over itself
+        if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿"):           #if snake reaches borders AND/or runs over itself
             gameover = True
-            screen.move(dims[0]-1, dims[1]-1)               # move cursor to y, x position
+            #screen.move(dims[0]-1, dims[1]-1)               # move cursor to y, x position
+
+
+        screen.addstr(0, 2, " SCORE: " + str(score) + " ")
+
+        if head == food:
+            score = score + 1
+            food = [randint(1, 18), randint(1, 58)]
+            screen.addstr(food[0], food[1], '✿', curses.color_pair(3))
+            body += [head[:]]
+        else:
+            pass
+
+
         screen.refresh()
 
-        time.sleep(0.1)
+        time.sleep(0.005)
 
 game()
 
