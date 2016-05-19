@@ -27,19 +27,33 @@ while key != 27:
     screen.addstr(0, 27, " SNAKE ")
     screen.timeout(150)             # speed of snake (in fact it's the screen)
 
-## get the value of the key pressed:
-    prevKey = key
-    event = screen.getch()
-    if event == -1:
-        key = key
-    else:
+    event = screen.getch()     # get the code of pressed key (if nothing pressed, this returns -1)
+    if event in [KEY_LEFT, KEY_RIGHT, KEY_UP, KEY_DOWN, 27]:
         key = event
 
-# extra feature: space bar for pausing/resuming the game
 
-## if an invalid key is pressed:
-    if key not in [KEY_LEFT, KEY_UP, KEY_DOWN, KEY_RIGHT, 27]:
-        key = prevKey
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## make snake move in direction of key pressed:
     # if key == KEY_DOWN:
