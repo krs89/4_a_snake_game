@@ -18,7 +18,7 @@ def main(scr):
 # initialize values:
     head = [1, 1]
     body = [head[:]]*3
-    direction = 0 #0: right, 1: down, 2: left, 3: up
+    direction = 3 #3: right, 6: down, 9: left, 12: up
     gameover = False
     deadcell = body[-1][:]
     key_press = curses.KEY_RIGHT
@@ -28,24 +28,24 @@ def main(scr):
 
     # get key presses and directions
         key_press = win.getch()
-        if key_press == curses.KEY_UP and direction != 1:
+        if key_press == curses.KEY_UP and direction != 6:
+            direction = 12
+        elif key_press == curses.KEY_DOWN and direction != 12:
+            direction = 6
+        elif key_press == curses.KEY_RIGHT and direction != 9:
             direction = 3
-        elif key_press == curses.KEY_DOWN and direction !=3:
-            direction = 1
-        elif key_press == curses.KEY_RIGHT and direction != 2:
-            direction = 0
-        elif key_press == curses.KEY_LEFT and direction != 0:
-            direction = 2
+        elif key_press == curses.KEY_LEFT and direction != 3:
+            direction = 9
 
 
     # make it move in direction
-        if direction == 0:
+        if direction == 3:
             head[1] += 1
-        elif direction == 2:
+        elif direction == 9:
             head[1] -= 1
-        elif direction == 1:
+        elif direction == 6:
             head[0] += 1
-        elif direction == 3:
+        elif direction == 12:
             head[0] -= 1
 
         deadcell = body[-1][:]
