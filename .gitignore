@@ -60,3 +60,8 @@ target/
 
 #Ipython Notebook
 .ipynb_checkpoints
+
+
+# Other resource files
+snake_from_dani.py
+snake_from_github.py
