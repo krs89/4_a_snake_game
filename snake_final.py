@@ -6,7 +6,7 @@ import time
 
 
 def init_screen():
-    global screen, score, food, key
+    global screen, score, food, key, life
     curses.initscr()
 
     if curses.has_colors():
@@ -27,6 +27,7 @@ def init_screen():
 
     key = KEY_RIGHT                 # starting direction of the snake
     score = 0
+    #life = 3
     food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
     screen.addch(food[0], food[1], '✿', curses.color_pair(3))    # Print the food
 
@@ -34,8 +35,9 @@ def init_screen():
     screen.addstr(0, 27, " SNAKE ")
     screen.timeout(150)             # speed of snake (in fact it's the screen)
 
+
 def game():
-    global screen, score, food, direction, head, body, gameover, tail
+    global screen, score, food, direction, head, body, gameover, tail, life
 
     #exit = -1
     head = [9, 25]
@@ -57,7 +59,9 @@ def game():
         if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿"): #or exit == 27:           #if snake reaches borders AND/or runs over itself
             gameover = True
 
+
         screen.addstr(0, 2, " SCORE: " + str(score) + " ")
+        #screen.addstr(0, 49, " LIFE: " + str(life) + " ")
 
 ## food consumption
         if head == food:
