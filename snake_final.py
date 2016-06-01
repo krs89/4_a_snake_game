@@ -7,6 +7,9 @@ import time
 def init_screen():
     global screen, score, food, key, life
     curses.initscr()
+    curses.noecho()                 # Disable default printing of inputs
+    curses.curs_set(0)              # Hiding cursor visibility
+    curses.cbreak()                 #
 
     if curses.has_colors():
         curses.start_color()
@@ -15,11 +18,7 @@ def init_screen():
     curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
     screen = curses.newwin(20, 60, 0, 0)
-
-    curses.noecho()                 # Disable default printing of inputs
-    curses.curs_set(0)              # Hiding cursor visibility
     screen.keypad(1)                # Mode for screen to capture key presses
-    curses.cbreak()                 #
     screen.border(0)                # 0 sets the characters to default
     screen.nodelay(1)               # if 1 - getch is in no-delay mode -- returns -1 if nothing is pressed
 
@@ -37,24 +36,21 @@ def init_screen():
 def game():
     global screen, score, food, direction, head, body, gameover, tail, life
 
-    #exit = -1
+    # exit = -1
     head = [9, 25]
     body = [head[:]]*3
-    direction = 0                           #0: right, 1: down, 2: left, 3: up
+    direction = 0  # 0: right, 1: down, 2: left, 3: up
     gameover = False
     tail = body[-1][:]
 
+    while not gameover:  # and q < 0:
 
-    while not gameover: #and q < 0:
-        #screen.bkgd(" ", curses.color_pair(2))
-
-        #exit = screen.getch()                      # press q to exit
-
+        # exit = screen.getch()                      # press q to exit
 
         dir_move()
 
-
-        if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿"): #or exit == 27:           #if snake reaches borders AND/or runs over itself
+        if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿"):
+            # or exit == 27:           #if snake reaches borders AND/or runs over itself
             gameover = True
             life -= 1
             for i in range(len(body)):
@@ -66,7 +62,7 @@ def game():
         screen.addstr(0, 49, " LIFE: " + str(life) + " ")
 
 
-## food consumption
+# food consumption
         if head == food:
             score = score + 1
             food = [randint(1, 18), randint(1, 58)]
@@ -75,10 +71,10 @@ def game():
         else:
             pass
 
-
         screen.refresh()
 
         time.sleep(0.005)
+
 
 def dir_move():
     global direction, tail
@@ -87,17 +83,16 @@ def dir_move():
         screen.addch(tail[0], tail[1], " ")
     screen.addstr(head[0], head[1], " ", curses.color_pair(1))
 
-## defining directions
+# defining directions
     key_press = screen.getch()
     if key_press == curses.KEY_UP and direction != 1:
         direction = 3
-    elif key_press == curses.KEY_DOWN and direction !=3:
+    elif key_press == curses.KEY_DOWN and direction != 3:
         direction = 1
     elif key_press == curses.KEY_RIGHT and direction != 2:
         direction = 0
     elif key_press == curses.KEY_LEFT and direction != 0:
         direction = 2
-
 
     if direction == 0:
         head[1] += 1
@@ -108,7 +103,7 @@ def dir_move():
     elif direction == 3:
         head[0] -= 1
 
-## making the snake move
+# making the snake move
     tail = body[-1][:]
     for z in range(len(body)-1, 0, -1):
         body[z] = body[z-1][:]
