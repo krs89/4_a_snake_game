@@ -23,20 +23,26 @@ def init_screen():
     screen.nodelay(1)               # if 1 - getch is in no-delay mode -- returns -1 if nothing is pressed
 
     key = KEY_RIGHT                 # starting direction of the snake
-    score = 0
     life = 3
-    food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
-    screen.addch(food[0], food[1], '✿', curses.color_pair(3))    # Print the food
 
-    screen.border(0)                # let border be the default characters
-    screen.addstr(0, 27, " SNAKE ")
     screen.timeout(150)             # speed of snake (in fact it's the screen)
 
 
 def game():
     global screen, score, food, direction, head, body, gameover, tail, life
+    screen.clear()
+    screen.border(0)                # let border be the default characters
+    score = 0
+    food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
+    screen.addch(food[0], food[1], '✿', curses.color_pair(3))    # Print the food
 
+    poison = [randint(1, 13), randint(1, 58)]                    # First food co-ordinates
+
+    for i in range(5):
+        screen.addch(poison[0] + i, poison[1], "x", curses.color_pair(3))
+        # screen.addch(poison[0], poison[1], 'x', curses.color_pair(3))    # Print the food
     # exit = -1
+
     head = [9, 25]
     body = [head[:]]*3
     direction = 0  # 0: right, 1: down, 2: left, 3: up
@@ -53,14 +59,14 @@ def game():
             # or exit == 27:           #if snake reaches borders AND/or runs over itself
             gameover = True
             life -= 1
-            for i in range(len(body)):
-                screen.addch(body[i][0], body[i][1], " ")
-                screen.addch(tail[0], tail[1], " ")
+            # for i in range(len(body)):
+            #     screen.addch(body[i][0], body[i][1], " ")
+            #     screen.addch(tail[0], tail[1], " ")
 
         screen.border(0)
         screen.addstr(0, 2, " SCORE: " + str(score) + " ")
         screen.addstr(0, 49, " LIFE: " + str(life) + " ")
-
+        screen.addstr(0, 27, " SNAKE ")
 
 # food consumption
         if head == food:
