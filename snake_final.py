@@ -27,6 +27,7 @@ def init_screen():
 
     screen.timeout(150)             # speed of snake (in fact it's the screen)
 
+    key_press = screen.getch()
 
 def game():
     global screen, score, food, direction, head, body, gameover, tail, life
@@ -36,11 +37,15 @@ def game():
     food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
     screen.addch(food[0], food[1], '✿', curses.color_pair(3))    # Print the food
 
-    poison = [randint(1, 13), randint(1, 58)]                    # First food co-ordinates
+    poison = [randint(1, 13), randint(1, 58)]                    # First poison co-ordinates
 
     for i in range(5):
         screen.addch(poison[0] + i, poison[1], "x", curses.color_pair(3))
         # screen.addch(poison[0], poison[1], 'x', curses.color_pair(3))    # Print the food
+
+    heart = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
+    screen.addch(heart[0], heart[1], '+', curses.color_pair(3))
+
     # exit = -1
 
     head = [9, 25]
@@ -49,13 +54,14 @@ def game():
     gameover = False
     tail = body[-1][:]
 
-    while not gameover:  # and q < 0:
+    while not gameover: #and key_press != 113:  # and q < 0:
 
         # exit = screen.getch()                      # press q to exit
 
         dir_move()
 
-        if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿"):
+        if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿") and screen.inch(head[0], head[1]) != ord("+"):
+
             # or exit == 27:           #if snake reaches borders AND/or runs over itself
             gameover = True
             life -= 1
@@ -70,12 +76,15 @@ def game():
 
 # food consumption
         if head == food:
-            score = score + 1
+            score += 1
             food = [randint(1, 18), randint(1, 58)]
             screen.addstr(food[0], food[1], '✿', curses.color_pair(3))
             body += [head[:]]
         else:
             pass
+
+        if head == heart:
+            life += 1
 
         screen.refresh()
 
@@ -99,6 +108,9 @@ def dir_move():
         direction = 0
     elif key_press == curses.KEY_LEFT and direction != 0:
         direction = 2
+    # elif key_press == 113:
+    #     gameover = True
+
 
     if direction == 0:
         head[1] += 1
@@ -116,8 +128,19 @@ def dir_move():
     body[0] = head[:]
 
 
+
+def gameover_screen():
+    screen.clear()
+    screen.border(0)
+    screen.addstr(8, 25, "GAME OVER")
+    screen.getch()
+    time.sleep(5)
+
+
+
+
 init_screen()
 while life > 0:
     game()
-
+gameover_screen()
 curses.endwin()
