@@ -29,6 +29,7 @@ def init_screen():
 
     key_press = screen.getch()
 
+
 def game():
     global screen, score, food, direction, head, body, gameover, tail, life
     screen.clear()
@@ -54,7 +55,7 @@ def game():
     gameover = False
     tail = body[-1][:]
 
-    while not gameover: #and key_press != 113:  # and q < 0:
+    while not gameover:  # and key_press != 113:  # and q < 0:
 
         # exit = screen.getch()                      # press q to exit
 
@@ -111,7 +112,6 @@ def dir_move():
     # elif key_press == 113:
     #     gameover = True
 
-
     if direction == 0:
         head[1] += 1
     elif direction == 2:
@@ -128,7 +128,6 @@ def dir_move():
     body[0] = head[:]
 
 
-
 def gameover_screen():
     screen.clear()
     screen.border(0)
@@ -136,10 +135,17 @@ def gameover_screen():
     screen.getch()
     time.sleep(5)
 
-
-
+def start_screen():
+    screen.clear()
+    screen.border(0)
+    screen.addstr(8, 25, "Hello")
+    screen.addstr(19, 16, " Press any key to start ")
+    start_key = screen.getch()
+    while start_key < 0:
+        start_key = screen.getch()
 
 init_screen()
+start_screen()
 while life > 0:
     game()
 gameover_screen()
