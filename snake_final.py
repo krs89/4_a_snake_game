@@ -4,7 +4,6 @@ from random import randint
 import time
 
 
-
 def init_screen():
     global screen, score, food, key, life
     curses.initscr()
@@ -14,7 +13,6 @@ def init_screen():
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)
     curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-
 
     screen = curses.newwin(20, 60, 0, 0)
 
@@ -27,7 +25,7 @@ def init_screen():
 
     key = KEY_RIGHT                 # starting direction of the snake
     score = 0
-    #life = 3
+    life = 3
     food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
     screen.addch(food[0], food[1], '✿', curses.color_pair(3))    # Print the food
 
@@ -58,10 +56,15 @@ def game():
 
         if screen.inch(head[0], head[1]) != ord(" ") and screen.inch(head[0], head[1]) != ord("✿"): #or exit == 27:           #if snake reaches borders AND/or runs over itself
             gameover = True
+            life -= 1
+            for i in range(len(body)):
+                screen.addch(body[i][0], body[i][1], " ")
+                screen.addch(tail[0], tail[1], " ")
 
-
+        screen.border(0)
         screen.addstr(0, 2, " SCORE: " + str(score) + " ")
-        #screen.addstr(0, 49, " LIFE: " + str(life) + " ")
+        screen.addstr(0, 49, " LIFE: " + str(life) + " ")
+
 
 ## food consumption
         if head == food:
@@ -113,6 +116,7 @@ def dir_move():
 
 
 init_screen()
-game()
+while life > 0:
+    game()
 
 curses.endwin()
