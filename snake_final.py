@@ -14,7 +14,7 @@ def init_screen():
     if curses.has_colors():
         curses.start_color()
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
-    curses.init_pair(2, curses.COLOR_BLACK, curses.COLOR_WHITE)
+    curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
 
     screen = curses.newwin(20, 60, 0, 0)
@@ -25,14 +25,15 @@ def init_screen():
     key = KEY_RIGHT                 # starting direction of the snake
     life = 3
 
-    screen.timeout(150)             # speed of snake (in fact it's the screen)
+    #screen.timeout(150)             # speed of snake (in fact it's the screen)
 
 
 def game():
     global screen, score, food, direction, head, body, gameover, tail, life
     food_char = '✿'
-    heart_char = '💓'
+    heart_char = '✿'
     bkgd_char = ' '
+    wall_char = "▊"
 
     allowed_chars = [ord(food_char), ord(heart_char), ord(bkgd_char)]
 
@@ -43,10 +44,10 @@ def game():
     food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
     screen.addch(food[0], food[1], food_char, curses.color_pair(3))    # Print the food
 
-    heart = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
-    screen.addch(heart[0], heart[1], heart_char, curses.color_pair(3))
+    heart = [randint(1, 18), randint(1, 58)]                      # First heart co-ordinates
+    screen.addch(heart[0], heart[1], heart_char, curses.color_pair(2))
 
-    poison = [randint(1, 13), randint(1, 58)]                    # First poison co-ordinates
+    poison = []                    # First poison co-ordinates
     # for i in range(5):
     #     screen.addch(poison[0], poison[1] + i, "▊", curses.color_pair(3))
         # screen.addch(poison[0], poison[1], 'x', curses.color_pair(3))
@@ -74,10 +75,13 @@ def game():
         screen.addstr(0, 27, " SNAKE ")
 
         # add life (heart consumption)
+        old_score = score
+
         if head == heart:
             life += 1
+            score += 1
             heart = [randint(1, 18), randint(1, 58)]
-            screen.addstr(heart[0], heart[1], heart_char, curses.color_pair(3))
+            screen.addstr(heart[0], heart[1], heart_char, curses.color_pair(2))
             body += [head[:]]
 
         # food consumption
@@ -87,16 +91,35 @@ def game():
             screen.addstr(food[0], food[1], food_char, curses.color_pair(3))
             body += [head[:]]
 
-        if (score + 1) % 5 == 0:
-            # poison = [randint(1, 13), randint(1, 58)]
-            for i in range(5):
-                screen.addch(poison[0], poison[1] + i, "▊", curses.color_pair(3))
+        if (score + 1) % 4 == 0 and old_score != score:
+            poison_head = [randint(1, 13), randint(1, 53)]
+            VERT = 1
+            HOR = 2
+            DIAG_R = 3
+            DIAG_L = 4
+            pos = randint(1, 5) # position of the wall
+            for i in range(5):  # length of wall
+                if pos == 1:
+                    poison.append((poison_head[0] + i, poison_head[1]))
+                    screen.addch(poison_head[0] + i, poison_head[1], wall_char, curses.color_pair(3))
+                elif pos == 2:
+                    poison.append((poison_head[0], poison_head[1] + i))
+                    screen.addch(poison_head[0], poison_head[1] + i, wall_char, curses.color_pair(3))
+                elif pos == 3:
+                    poison.append((poison_head[0] + i, poison_head[1] + i))
+                    screen.addch(poison_head[0] + i, poison_head[1] + i, wall_char, curses.color_pair(3))
+                elif pos == 4:
+                    poison.append((poison_head[0] + i, poison_head[1] - i))
+                    screen.addch(poison_head[0] + i, poison_head[1] - i, wall_char, curses.color_pair(3))
 
 
 
         screen.refresh()
-
-        time.sleep(0.005)
+        screen.timeout(150)
+        if score > 5:
+            screen.timeout(75)
+        elif score > 10:
+            screen.timeout(50)
 
 
 def dir_move():
@@ -145,7 +168,7 @@ def gameover_screen():
     screen.border(0)
     screen.addstr(8, 25, "GAME OVER")
     screen.getch()
-    time.sleep(5)
+    time.sleep(2)
 
 
 def start_screen():
