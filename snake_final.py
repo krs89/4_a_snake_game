@@ -11,11 +11,13 @@ def init_screen():
     curses.curs_set(0)              # Hiding cursor visibility
     curses.cbreak()                 # No need to press enter after key press
 
+    # defining colours
     if curses.has_colors():
         curses.start_color()
     curses.init_pair(1, curses.COLOR_BLACK, curses.COLOR_GREEN)
     curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
     curses.init_pair(3, curses.COLOR_YELLOW, curses.COLOR_BLACK)
+    curses.init_pair(4, curses.COLOR_WHITE, curses.COLOR_BLUE)
 
     screen = curses.newwin(20, 60, 0, 0)
     screen.keypad(1)                # Mode for screen to capture key presses
@@ -25,79 +27,87 @@ def init_screen():
     key = KEY_RIGHT                 # starting direction of the snake
     life = 3
 
-    #screen.timeout(150)             # speed of snake (in fact it's the screen)
-
+def random_position(good_place):
+    random_pos = [randint(1, 18), randint(1, 58)]
+    while screen.inch(random_pos[0], random_pos[1]) != good_place:
+        random_pos = [randint(1, 18), randint(1, 58)]
+        break
+    return random_pos
 
 def game():
     global screen, score, food, direction, head, body, gameover, tail, life
+
+    # defining characters
     food_char = '✿'
-    heart_char = '✿'
+    heart_char = '♥'
     bkgd_char = ' '
     wall_char = "▊"
 
+    # characters the snake can touch without dying
     allowed_chars = [ord(food_char), ord(heart_char), ord(bkgd_char)]
 
+    # setting up the screen
     screen.clear()
-    screen.border(0)                # let border be the default characters
+    screen.border(0)
     score = 0
 
-    food = [randint(1, 18), randint(1, 58)]                      # First food co-ordinates
+
+    food = random_position(bkgd_char)                      # First food co-ordinates
     screen.addch(food[0], food[1], food_char, curses.color_pair(3))    # Print the food
 
-    heart = [randint(1, 18), randint(1, 58)]                      # First heart co-ordinates
-    screen.addch(heart[0], heart[1], heart_char, curses.color_pair(2))
+    heart = random_position(bkgd_char)                      # First heart co-ordinates
 
-    poison = []                    # First poison co-ordinates
-    # for i in range(5):
-    #     screen.addch(poison[0], poison[1] + i, "▊", curses.color_pair(3))
-        # screen.addch(poison[0], poison[1], 'x', curses.color_pair(3))
+    poison = []                    # creating a list for the future "poison" (wall)
 
+    # starting position of the snake
     head = [9, 25]
     body = [head[:]]*3
+    tail = body[-1][:]
     direction = 0  # 0: right, 1: down, 2: left, 3: up
     gameover = False
-    tail = body[-1][:]
 
     while not gameover:
 
+        # snake's direction and movement
         dir_move()
 
+        # snake dies if it reaches the borders, runs over itself or touches the wall ("poison")
         if screen.inch(head[0], head[1]) not in allowed_chars:
-        # if screen.inch(head[0], head[1]) == ord("x") and head[0] == 0 and head [0] == 19 and head[1] == 0 and head[1] == 59:
-        # if snake reaches borders AND/or runs over itself
             gameover = True
             life -= 1
-
 
         screen.border(0)
         screen.addstr(0, 2, " SCORE: " + str(score) + " ")
         screen.addstr(0, 49, " LIFE: " + str(life) + " ")
         screen.addstr(0, 27, " SNAKE ")
 
-        # add life (heart consumption)
         old_score = score
 
         if head == heart:
             life += 1
             score += 1
-            heart = [randint(1, 18), randint(1, 58)]
-            screen.addstr(heart[0], heart[1], heart_char, curses.color_pair(2))
             body += [head[:]]
 
         # food consumption
         if head == food:
             score += 1
-            food = [randint(1, 18), randint(1, 58)]
+            food = random_position(bkgd_char)
             screen.addstr(food[0], food[1], food_char, curses.color_pair(3))
             body += [head[:]]
 
+        # add life (heart consumption)
         if (score + 1) % 4 == 0 and old_score != score:
+            heart = random_position(bkgd_char)
+            screen.addch(heart[0], heart[1], heart_char, curses.color_pair(2))
+
+        # "poison" aka wall
+        if (score + 1) % 3 == 0 and old_score != score:
             poison_head = [randint(1, 13), randint(1, 53)]
             VERT = 1
             HOR = 2
             DIAG_R = 3
             DIAG_L = 4
-            pos = randint(1, 5) # position of the wall
+            pos = randint(1, 5)  # position of the wall
             for i in range(5):  # length of wall
                 if pos == 1:
                     poison.append((poison_head[0] + i, poison_head[1]))
@@ -112,10 +122,9 @@ def game():
                     poison.append((poison_head[0] + i, poison_head[1] - i))
                     screen.addch(poison_head[0] + i, poison_head[1] - i, wall_char, curses.color_pair(3))
 
-
-
         screen.refresh()
         screen.timeout(150)
+        # speeding up the snake
         if score > 5:
             screen.timeout(75)
         elif score > 10:
@@ -125,10 +134,10 @@ def game():
 def dir_move():
     global direction, tail, gameover, life
 
-    # draw the snake
+    # drawing the snake
     if tail not in body:
         screen.addch(tail[0], tail[1], " ")
-    screen.addstr(head[0], head[1], "o", curses.color_pair(1))
+    screen.addstr(head[0], head[1], " ", curses.color_pair(1))
 
     # defining directions
     key_press = screen.getch()
@@ -166,6 +175,7 @@ def dir_move():
 def gameover_screen():
     screen.clear()
     screen.border(0)
+    # screen.bkgd(' ', curses.color_pair(4))
     screen.addstr(8, 25, "GAME OVER")
     screen.getch()
     time.sleep(2)
@@ -174,8 +184,8 @@ def gameover_screen():
 def start_screen():
     screen.clear()
     screen.border(0)
-    screen.addstr(8, 25, "Hello")
-    screen.addstr(19, 16, " Press any key to start ")
+    screen.addstr(8, 25, "HELLO!")
+    screen.addstr(19, 17, " Press any key to start ")
     start_key = screen.getch()
     while start_key < 0:
         start_key = screen.getch()
